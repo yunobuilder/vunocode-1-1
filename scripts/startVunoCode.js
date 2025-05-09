@@ -1,0 +1,1 @@
+console.log('🚀 VUNOCODE 1.1 (estrutura base) criada!');

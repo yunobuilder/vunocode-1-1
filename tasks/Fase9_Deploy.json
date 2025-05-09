@@ -1,0 +1,23 @@
+{
+    "taskName": "Fase9_Deploy",
+    "description": "Configura deploy automático + gera scripts e logs",
+    "modules": [
+      {
+        "name": "DeployScript",
+        "path": "scripts/deploy.sh",
+        "content": "#!/bin/bash\necho 'Starting deploy...'\nnpm run build && vercel --prod\nnpx prisma migrate deploy\necho 'Deploy done.'"
+      },
+      {
+        "name": "DeployLog",
+        "path": "deploy.log",
+        "content": "Deploy log initialized.\n"
+      }
+    ],
+    "updatePackageJSON": {
+      "scripts": {
+        "deploy": "bash scripts/deploy.sh",
+        "postdeploy": "npx prisma migrate deploy"
+      }
+    }
+  }
+  

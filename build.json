@@ -1,0 +1,33 @@
+{
+    "pages": [
+      {
+        "name": "index.jsx",
+        "content": "import Link from 'next/link';\n\nexport default function Home() {\n  return (\n    <div className=\"min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center p-4\">\n      <h1 className=\"text-4xl font-bold mb-4 text-purple-600\">Bem-vindo ao VUNOCode</h1>\n      <p className=\"mb-6 text-gray-700\">Uma plataforma para acelerar sua criação digital de forma automatizada e inteligente.</p>\n      <div className=\"flex space-x-4\">\n        <Link href=\"/login\" className=\"bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition\">Login</Link>\n        <Link href=\"/cadastro\" className=\"bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition\">Cadastre-se</Link>\n      </div>\n      <div className=\"mt-8 text-sm text-gray-500 max-w-2xl\">\n        <p>O VUNOCode automatiza a criação de estruturas para seus projetos. Gere páginas, componentes e estilos em minutos!</p>\n      </div>\n    </div>\n  );\n}"
+      },
+      {
+        "name": "login.jsx",
+        "content": "import { useState } from 'react';\n\nexport default function Login() {\n  const [email, setEmail] = useState('');\n  const [senha, setSenha] = useState('');\n\n  const handleSubmit = (e) => {\n    e.preventDefault();\n    alert(`Email: ${email}\\nSenha: ${senha}`);\n  };\n\n  return (\n    <div className=\"min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 to-purple-700\">\n      <form onSubmit={handleSubmit} className=\"bg-white p-8 rounded-lg shadow-lg transform hover:scale-105 transition w-80\">\n        <h2 className=\"text-2xl font-bold mb-6 text-center\">Login</h2>\n        <input type=\"email\" placeholder=\"Email\" value={email} onChange={(e) => setEmail(e.target.value)} className=\"w-full p-2 mb-4 border rounded\" required />\n        <input type=\"password\" placeholder=\"Senha\" value={senha} onChange={(e) => setSenha(e.target.value)} className=\"w-full p-2 mb-4 border rounded\" required />\n        <button type=\"submit\" className=\"w-full bg-purple-600 text-white p-2 rounded hover:bg-purple-700\">Entrar</button>\n      </form>\n    </div>\n  );\n}"
+      },
+      {
+        "name": "cadastro.jsx",
+        "content": "import { useState } from 'react';\n\nexport default function Cadastro() {\n  const [formData, setFormData] = useState({ nome: '', email: '', tipo: 'usuario', senha: '', confirmSenha: '', aceito: false });\n\n  const handleChange = (e) => {\n    const { name, value, type, checked } = e.target;\n    setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));\n  };\n\n  const handleSubmit = (e) => {\n    e.preventDefault();\n    if (formData.senha !== formData.confirmSenha) {\n      alert('As senhas não coincidem!');\n      return;\n    }\n    if (!formData.aceito) {\n      alert('Você precisa aceitar os termos.');\n      return;\n    }\n    alert(`Cadastro realizado para: ${formData.nome}`);\n  };\n\n  return (\n    <div className=\"min-h-screen flex items-center justify-center bg-gray-50\">\n      <form onSubmit={handleSubmit} className=\"bg-white p-8 rounded-lg shadow-lg w-96\">\n        <h2 className=\"text-2xl font-bold mb-6 text-center\">Cadastro</h2>\n        <input type=\"text\" name=\"nome\" placeholder=\"Nome completo\" onChange={handleChange} className=\"w-full p-2 mb-4 border rounded\" required />\n        <input type=\"email\" name=\"email\" placeholder=\"Email\" onChange={handleChange} className=\"w-full p-2 mb-4 border rounded\" required />\n        <select name=\"tipo\" onChange={handleChange} className=\"w-full p-2 mb-4 border rounded\">\n          <option value=\"usuario\">Usuário</option>\n          <option value=\"empresa\">Empresa</option>\n        </select>\n        <input type=\"password\" name=\"senha\" placeholder=\"Senha (8+ caracteres, 1 maiúscula)\" onChange={handleChange} className=\"w-full p-2 mb-4 border rounded\" required minLength={8} />\n        <input type=\"password\" name=\"confirmSenha\" placeholder=\"Confirmar senha\" onChange={handleChange} className=\"w-full p-2 mb-4 border rounded\" required />\n        <label className=\"flex items-center mb-4 text-sm\">\n          <input type=\"checkbox\" name=\"aceito\" onChange={handleChange} className=\"mr-2\" /> Aceito os Termos de Uso\n        </label>\n        <button type=\"submit\" className=\"w-full bg-purple-600 text-white p-2 rounded hover:bg-purple-700\">Cadastrar</button>\n      </form>\n    </div>\n  );\n}"
+      }
+    ],
+    "components": [
+      {
+        "name": "Header.jsx",
+        "content": "import Link from 'next/link';\n\nexport default function Header() {\n  return (\n    <header className=\"bg-white shadow p-4\">\n      <div className=\"container mx-auto flex justify-between\">\n        <Link href=\"/\" className=\"font-bold text-xl text-purple-600\">VUNOCode</Link>\n        <nav className=\"space-x-4\">\n          <Link href=\"/login\">Login</Link>\n          <Link href=\"/cadastro\">Cadastro</Link>\n        </nav>\n      </div>\n    </header>\n  );\n}"
+      },
+      {
+        "name": "Footer.jsx",
+        "content": "export default function Footer() {\n  return (\n    <footer className=\"bg-white border-t mt-8 p-4 text-center text-sm text-gray-600\">\n      © 2025 VUNOCode\n    </footer>\n  );\n}"
+      }
+    ],
+    "styles": [
+      {
+        "name": "globals.css",
+        "content": "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nbody {\n  @apply bg-gray-50 text-gray-800;\n}\n"
+      }
+    ]
+  }
+  

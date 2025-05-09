@@ -1,0 +1,114 @@
+[
+  {
+    "numero": 1,
+    "descricao": "Inicialização do VUNOCODE 2.0 – Estrutura Base",
+    "files": []
+  },
+  {
+    "numero": 2,
+    "descricao": "Fase 2 – Deploy Automático e CI/CD",
+    "files": []
+  },
+  {
+    "numero": 3,
+    "descricao": "Fase 3 – Editor Visual Drag&Drop",
+    "files": []
+  },
+  {
+    "numero": 4,
+    "descricao": "Fase 4 – Suporte Offline e Modo Local",
+    "files": []
+  },
+  {
+    "numero": 5,
+    "descricao": "Fase 5 – IA que Explica o Código Gerado (botão “Entender”)",
+    "files": [
+      {
+        "path": "src/pages/api/explain.js",
+        "content": "import OpenAI from 'openai';\nconst openai = new OpenAI();\nexport default async function handler(req, res) {\n  const { code } = req.body;\n  const completion = await openai.chat.completions.create({\n    model: 'gpt-4o-mini',\n    messages: [\n      { role: 'system', content: 'Você é um Assistente de Código que explica trechos de código.' },\n      { role: 'user', content: \"Explique este código:\\n```\" + code + \"```\" }\n    ]\n  });\n  res.status(200).json({ explanation: completion.choices[0].message.content });\n}\n"
+      },
+      {
+        "path": "src/components/ExplainButton.jsx",
+        "content": "import React, { useState } from 'react';\nexport default function ExplainButton({ code }) {\n  const [explicacao, setExplicacao] = useState(null);\n  async function handleExplain() {\n    const res = await fetch('/api/explain', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ code })\n    });\n    const { explanation } = await res.json();\n    setExplicacao(explanation);\n  }\n  return (\n    <div>\n      <button\n        onClick={handleExplain}\n        className=\"px-3 py-1 bg-purple-600 text-white rounded\"\n      >\n        Entender\n      </button>\n      {explicacao && (\n        <pre className=\"mt-2 p-2 bg-gray-100 rounded text-sm\">\n          {explicacao}\n        </pre>\n      )}\n    </div>\n  );\n}\n"
+      },
+      {
+        "path": "src/components/WithExplain.jsx",
+        "content": "import React from 'react';\nimport ExplainButton from './ExplainButton';\nexport default function WithExplain({ children, code }) {\n  return (\n    <div className=\"relative\">\n      {children}\n      <div className=\"absolute top-2 right-2\">\n        <ExplainButton code={code} />\n      </div>\n    </div>\n  );\n}\n"
+      }
+    ]
+  },
+  {
+    "numero": 6,
+    "descricao": "Fase 6 – IA que sugere módulos conforme o padrão do projeto",
+    "files": [
+      {
+        "path": "src/pages/api/suggestModule.js",
+        "content": "import OpenAI from 'openai';\nconst openai = new OpenAI();\nexport default async function handler(req, res) {\n  const { context } = req.body;\n  const completion = await openai.chat.completions.create({\n    model: 'gpt-4o-mini',\n    messages: [\n      { role: 'system', content: 'Você é uma IA especialista em sugerir módulos de sistema.' },\n      { role: 'user', content: `Com base neste contexto de projeto, sugira quais módulos criar:\\n${context}` }\n    ]\n  });\n  res.status(200).json({ suggestions: completion.choices[0].message.content });\n}\n"
+      },
+      {
+        "path": "src/components/SuggestModules.jsx",
+        "content": "import React, { useState } from 'react';\nexport default function SuggestModules({ context }) {\n  const [suggestions, setSuggestions] = useState(null);\n  async function handleSuggest() {\n    const res = await fetch('/api/suggestModule', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ context })\n    });\n    const { suggestions: text } = await res.json();\n    setSuggestions(text);\n  }\n  return (\n    <div className=\"p-4\">\n      <button\n        onClick={handleSuggest}\n        className=\"px-4 py-2 bg-green-600 text-white rounded\"\n      >\n        Sugerir Módulos\n      </button>\n      {suggestions && (\n        <pre className=\"mt-4 p-2 bg-gray-100 rounded text-sm whitespace-pre-wrap\">\n          {suggestions}\n        </pre>\n      )}\n    </div>\n  );\n}\n"
+      }
+    ]
+  },
+  {
+    "numero": 7,
+    "descricao": "Fase 7 – Integrações Futuras",
+    "files": [
+      {
+        "path": "src/pages/api/integrations/firebase.js",
+        "content": "import { initializeApp } from 'firebase/app';\nexport default function handler(req, res) {\n  // Inicialize seu app Firebase aqui\n  const app = initializeApp({ apiKey: process.env.FIREBASE_API_KEY });\n  res.status(200).json({ ok: true });\n}\n"
+      },
+      {
+        "path": "src/pages/api/integrations/supabase.js",
+        "content": "import { createClient } from '@supabase/supabase-js';\nconst supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);\nexport default async function handler(req, res) {\n  // Exemplo de fetch de dados\n  const { data, error } = await supabase.from('users').select('*');\n  res.status(200).json({ data, error });\n}\n"
+      },
+      {
+        "path": "src/pages/api/integrations/hasura.js",
+        "content": "import fetch from 'node-fetch';\nexport default async function handler(req, res) {\n  // Exemplo de query GraphQL no Hasura\n  const query = `{ users { id name } }`;\n  const result = await fetch(process.env.HASURA_GRAPHQL_URL, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ query })\n  }).then(r => r.json());\n  res.status(200).json(result);\n}\n"
+      },
+      {
+        "path": "src/utils/exportToGitHub.ts",
+        "content": "import { Octokit } from 'octokit';\nexport async function exportToGitHub(owner: string, repo: string, path: string, content: string) {\n  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });\n  await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {\n    owner,\n    repo,\n    path,\n    message: 'Add generated file',\n    content: Buffer.from(content).toString('base64')\n  });\n}\n"
+      },
+      {
+        "path": "config/env.example",
+        "content": "# Firebase\nFIREBASE_API_KEY=\n\n# Supabase\nSUPABASE_URL=\nSUPABASE_KEY=\n\n# Hasura\nHASURA_GRAPHQL_URL=\n\n# GitHub\nGITHUB_TOKEN=\n\n# Stripe\nSTRIPE_KEY=\n\n# Mailchimp\nMAILCHIMP_API_KEY=\nMAILCHIMP_SERVER_PREFIX=\n"
+      },
+      {
+        "path": "src/pages/api/integrations/stripe.js",
+        "content": "import Stripe from 'stripe';\nconst stripe = new Stripe(process.env.STRIPE_KEY);\nexport default async function handler(req, res) {\n  // Exemplo de chamada à API do Stripe\n  const products = await stripe.products.list();\n  res.status(200).json(products);\n}\n"
+      },
+      {
+        "path": "src/pages/api/integrations/mailchimp.js",
+        "content": "import Mailchimp from '@mailchimp/mailchimp_marketing';\nMailchimp.setConfig({ apiKey: process.env.MAILCHIMP_API_KEY, server: process.env.MAILCHIMP_SERVER_PREFIX });\nexport default async function handler(req, res) {\n  // Exemplo de lista de contatos\n  const response = await Mailchimp.lists.getListMembersInfo(process.env.MAILCHIMP_LIST_ID);\n  res.status(200).json(response);\n}\n"
+      }
+    ]
+  },
+  {
+    "numero": 8,
+    "descricao": "Fase 8 – Segurança, Performance e Testes",
+    "files": [
+      {
+        "path": "src/middleware/rateLimiter.js",
+        "content": "import rateLimit from 'express-rate-limit';\nexport const apiLimiter = rateLimit({\n  windowMs: 1 * 60 * 1000,\n  max: 60,\n  message: 'Muitas requisições, por favor tente novamente mais tarde.'\n});\n"
+      },
+      {
+        "path": "src/utils/logger.js",
+        "content": "import fs from 'fs';\nexport function logError(err) {\n  const entry = `${new Date().toISOString()} ERROR: ${err.stack || err}\\n`;\n  fs.mkdirSync('logs', { recursive: true });\n  fs.appendFileSync('logs/error.log', entry);\n}\n"
+      },
+      {
+        "path": "src/utils/audit.js",
+        "content": "export function audit(action, details) {\n  console.debug(`[AUDIT] ${new Date().toISOString()} ${action}:`, details);\n}\n"
+      },
+      {
+        "path": "vitest.config.js",
+        "content": "import { defineConfig } from 'vitest/config';\nexport default defineConfig({\n  test: { globals: true, environment: 'jsdom' }\n});\n"
+      },
+      {
+        "path": "tests/sample.test.js",
+        "content": "import { describe, it, expect } from 'vitest';\nimport { audit } from '../src/utils/audit';\ndescribe('Audit util', () => {\n  it('should export a function', () => {\n    expect(typeof audit).toBe('function');\n  });\n});\n"
+      }
+    ]
+  }  
+]

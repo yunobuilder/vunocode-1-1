@@ -1,0 +1,26 @@
+{
+  "taskName": "CRUD_Base_AutoSetup",
+  "description": "Gera backend completo com db.ts, userService, productService e server.ts para rodar Prisma + Express",
+  "modules": [
+    {
+      "name": "PrismaDB",
+      "path": "src/db.ts",
+      "content": "import { PrismaClient } from '@prisma/client';\n\nconst prisma = new PrismaClient();\n\nexport default prisma;"
+    },
+    {
+      "name": "UserService",
+      "path": "src/services/userService.ts",
+      "content": "import prisma from '../db';\n\nexport interface UserCreateInput {\n  name: string;\n  email: string;\n  password: string;\n}\n\nexport const createUser = (data: UserCreateInput) => {\n  return prisma.user.create({ data });\n};\n\nexport const getUserById = (id: number) => {\n  return prisma.user.findUnique({ where: { id } });\n};\n\nexport const listUsers = () => {\n  return prisma.user.findMany();\n};"
+    },
+    {
+      "name": "ProductService",
+      "path": "src/services/productService.ts",
+      "content": "import prisma from '../db';\n\nexport interface ProductCreateInput {\n  title: string;\n  price: number;\n  inStock: boolean;\n}\n\nexport const createProduct = (data: ProductCreateInput) => {\n  return prisma.product.create({ data });\n};\n\nexport const getProductById = (id: number) => {\n  return prisma.product.findUnique({ where: { id } });\n};\n\nexport const listProducts = () => {\n  return prisma.product.findMany();\n};"
+    },
+    {
+      "name": "ExpressServer",
+      "path": "src/server.ts",
+      "content": "import express from 'express';\nimport bodyParser from 'body-parser';\nimport dotenv from 'dotenv';\nimport {\n  createUser,\n  getUserById,\n  listUsers,\n} from './services/userService';\nimport {\n  createProduct,\n  getProductById,\n  listProducts,\n} from './services/productService';\n\ndotenv.config();\n\nconst app = express();\napp.use(bodyParser.json());\nconst PORT = process.env.PORT || 4000;\n\napp.get('/health', (_req, res) => res.json({ status: 'ok' }));\n\n// Users\napp.post('/users', async (req, res) => {\n  try {\n    const user = await createUser(req.body);\n    res.status(201).json(user);\n  } catch (err) {\n    res.status(400).json({ error: err.message });\n  }\n});\n\napp.get('/users', async (_req, res) => {\n  const users = await listUsers();\n  res.json(users);\n});\n\napp.get('/users/:id', async (req, res) => {\n  const user = await getUserById(+req.params.id);\n  if (user) return res.json(user);\n  res.status(404).json({ error: 'User not found' });\n});\n\n// Products\napp.post('/products', async (req, res) => {\n  try {\n    const product = await createProduct(req.body);\n    res.status(201).json(product);\n  } catch (err) {\n    res.status(400).json({ error: err.message });\n  }\n});\n\napp.get('/products', async (_req, res) => {\n  const products = await listProducts();\n  res.json(products);\n});\n\napp.get('/products/:id', async (req, res) => {\n  const product = await getProductById(+req.params.id);\n  if (product) return res.json(product);\n  res.status(404).json({ error: 'Product not found' });\n});\n\napp.listen(PORT, () =>\n  console.log(`Server running at http://localhost:${PORT}`)\n);"
+    }
+  ]
+}

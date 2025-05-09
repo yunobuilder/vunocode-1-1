@@ -1,0 +1,4 @@
+// Formulário de autenticação
+export default function AuthForm() {
+  return <form>Formulário de Login/Cadastro</form>;
+}

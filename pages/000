@@ -1,0 +1,184 @@
+// Painel AdminBuilder – Núcleo Técnico Consolidado VUNOCODE (Clean)
+import { useState, useEffect } from 'react';
+import TopBar from '../components/admin/TopBar';
+import Sidebar from '../components/admin/Sidebar';
+
+
+export default function AdminBuilder() {
+  const [jsonInput, setJsonInput] = useState('');
+  const [log, setLog] = useState('');
+  const [history, setHistory] = useState([]);
+  const [strategicContext, setStrategicContext] = useState('');
+  const [suggestion, setSuggestion] = useState('');
+
+  useEffect(() => {
+    fetchHistory();
+    fetchContext();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/api/history');
+      const data = await res.json();
+      setHistory(data);
+    } catch {
+      setHistory([]);
+    }
+  };
+
+  const fetchContext = async () => {
+    try {
+      const res = await fetch('/api/context');
+      const data = await res.json();
+      setStrategicContext(data?.content || '');
+    } catch {
+      setStrategicContext('');
+    }
+  };
+
+  const handleExecute = async () => {
+    setLog('🔄 Executando...\n');
+    try {
+      const data = JSON.parse(jsonInput);
+      setLog((prev) => prev + '✅ JSON válido carregado.\n');
+      const response = await fetch('/api/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      setLog((prev) => prev + result.message + '\n');
+      fetchHistory();
+      setJsonInput('');
+    } catch {
+      setLog((prev) => prev + '❌ Erro: JSON inválido ou execução falhou.\n');
+    }
+  };
+
+  const handleSaveContext = async () => {
+    try {
+      await fetch('/api/context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: strategicContext }),
+      });
+      alert('✅ Contexto salvo!');
+    } catch {
+      alert('❌ Falha ao salvar o contexto.');
+    }
+  };
+
+  const getIASuggestion = async () => {
+    setLog('🧠 Gerando sugestão da IA...\n');
+    try {
+      const res = await fetch('/api/suggestModule');
+      const data = await res.json();
+      setSuggestion(data?.suggestion || JSON.stringify(data, null, 2));
+      setLog((prev) => prev + '✅ Sugestão gerada com sucesso.\n');
+    } catch {
+      setLog((prev) => prev + '❌ Falha ao obter sugestão.\n');
+    }
+  };
+  
+
+  const handleCopy = async () => {
+    if (suggestion) {
+      try {
+        await navigator.clipboard.writeText(suggestion);
+        alert('✅ Sugestão copiada!');
+      } catch {
+        alert('❌ Falha ao copiar!');
+      }
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <TopBar />
+        <main className="flex-1 p-6 overflow-y-auto">
+          <h1 className="text-3xl font-bold text-purple-700 mb-6">AdminBuilder – Núcleo Técnico 🚀</h1>
+
+          {/* Executor */}
+          <div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow border mb-6">
+            <textarea
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
+              placeholder="Cole seu JSON ou instrução aqui..."
+              className="w-full h-64 p-4 border-2 border-purple-300 rounded-lg shadow mb-4 text-sm font-mono"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handleExecute}
+                className="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition text-sm font-semibold"
+              >
+                Executar
+              </button>
+              <button
+                onClick={() => {
+                  setJsonInput('');
+                  setLog('');
+                  setSuggestion('');
+                }}
+                className="flex-1 bg-gray-400 text-white py-3 rounded-lg hover:bg-gray-500 transition text-sm font-semibold"
+              >
+                Zerar Tudo
+              </button>
+            </div>
+          </div>
+
+          {/* IA Sugestão */}
+          <div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow border mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">💡 Sugestão IA</h2>
+            <textarea
+              value={suggestion}
+              readOnly
+              placeholder="Nenhuma sugestão ainda..."
+              className="w-full h-64 p-4 border-2 border-green-300 rounded-lg shadow mb-4 text-sm font-mono bg-gray-50"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={getIASuggestion}
+                className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm font-semibold"
+              >
+                Obter Sugestão
+              </button>
+              <button
+                onClick={handleCopy}
+                className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 text-sm font-semibold"
+              >
+                Copiar Sugestão
+              </button>
+            </div>
+          </div>
+
+          {/* Logs */}
+          <div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow border mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">📜 Log de Execução</h2>
+            <pre className="h-64 overflow-y-auto bg-gray-50 p-3 rounded text-xs text-gray-600 whitespace-pre-wrap font-mono">
+              {log || 'Nenhuma execução realizada ainda.'}
+            </pre>
+          </div>
+
+          {/* Contexto Estratégico */}
+          <div className="w-full max-w-4xl bg-white p-4 rounded-lg shadow border">
+            <h2 className="text-lg font-semibold text-gray-700 mb-2">📋 Contexto Estratégico</h2>
+            <textarea
+              value={strategicContext}
+              onChange={(e) => setStrategicContext(e.target.value)}
+              placeholder="Descreva seu projeto (missão, visão, arquitetura)..."
+              className="w-full h-48 p-3 border-2 border-purple-300 rounded-lg shadow text-sm font-mono mb-4"
+            />
+            <button
+              onClick={handleSaveContext}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-semibold"
+            >
+              Salvar Contexto Estratégico
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "nome": "Fase9_Deploy",
+    "parametros": {
+      "pastas": [],
+      "arquivos": [
+        {
+          "path": "scripts/deploy.sh",
+          "conteudo": "#!/bin/bash\necho 'Starting deploy...'\nnpm run build && vercel --prod\nnpx prisma migrate deploy"
+        },
+        {
+          "path": "deploy.log",
+          "conteudo": "Deploy log initialized.\n"
+        }
+      ]
+    }
+  }
+]

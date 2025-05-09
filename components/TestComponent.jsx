@@ -1,0 +1,1 @@
+export default function TestComponent() { return <div>Test OK ✅</div>; }

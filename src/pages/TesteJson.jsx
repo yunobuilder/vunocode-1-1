@@ -1,0 +1,1 @@
+export default function TesteJson() { return <h1>Teste JSON!</h1>; }

@@ -1,0 +1,310 @@
+[
+  {
+    "timestamp": "2025-05-07T22:12:40.273Z",
+    "type": "auto",
+    "files": [
+      "vunocode-2.0-core/pages/index.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T22:04:58.816Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:55:51.808Z",
+    "type": "json",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:53:38.514Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:51:53.639Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:51:24.684Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:49:12.279Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:48:05.999Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T21:47:37.384Z",
+    "type": "auto",
+    "files": [
+      "file"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:15:29.229Z",
+    "type": "fase 8",
+    "files": [
+      "src/middleware/rateLimiter.js",
+      "src/utils/logger.js",
+      "src/utils/audit.js",
+      "vitest.config.js",
+      "tests/sample.test.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:14:20.948Z",
+    "type": "fase 7",
+    "files": [
+      "src/pages/api/integrations/firebase.js",
+      "src/pages/api/integrations/supabase.js",
+      "src/pages/api/integrations/hasura.js",
+      "src/utils/exportToGitHub.ts",
+      "config/env.example",
+      "src/pages/api/integrations/stripe.js",
+      "src/pages/api/integrations/mailchimp.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:11:52.771Z",
+    "type": "fase 6",
+    "files": [
+      "src/pages/api/suggestModule.js",
+      "src/components/SuggestModules.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:10:11.306Z",
+    "type": "fase 5",
+    "files": [
+      "src/pages/api/explain.js",
+      "src/components/ExplainButton.jsx",
+      "src/components/WithExplain.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:05:39.209Z",
+    "type": "fase 4",
+    "files": [
+      "src/offline/index.ts",
+      "public/sw.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T18:03:58.337Z",
+    "type": "fase 3",
+    "files": [
+      "src/components/DragDropEditor.jsx",
+      "pages/editor.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:52:46.218Z",
+    "type": "fase 2",
+    "files": [
+      "src/api/deploy.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:50:59.949Z",
+    "type": "fase 1",
+    "files": [
+      "vunocode-2.0-core/build.json",
+      "package.json",
+      ".gitignore",
+      "README.md",
+      "core/index.ts",
+      "executor/index.ts",
+      "admin-builder.jsx",
+      "utils/index.ts"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:45:12.785Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:23:09.905Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:14:50.097Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:14:25.465Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:14:25.061Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:12:26.761Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:12:26.320Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:12:25.521Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:12:14.475Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T17:12:12.227Z",
+    "type": "fase 1",
+    "files": [
+      "src/pages/helloMundo.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T11:46:19.659Z",
+    "type": "auto",
+    "files": [
+      "project-web/css/style.css",
+      "project-web/index.html",
+      "project-web/js/main.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T11:30:07.552Z",
+    "type": "json",
+    "files": [
+      "project-web/index.html",
+      "project-web/about.html",
+      "project-web/contact.html",
+      "project-web/css/style.css",
+      "project-web/js/app.js"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:36:00.712Z",
+    "type": "json",
+    "files": [
+      null
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:34:59.267Z",
+    "type": "auto",
+    "files": [
+      null
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:33:18.315Z",
+    "type": "json",
+    "files": [
+      null
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:32:07.867Z",
+    "type": "auto",
+    "files": [
+      null
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:30:47.555Z",
+    "type": "auto",
+    "files": [
+      null
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:18:39.254Z",
+    "type": "auto",
+    "files": [
+      "/src/pages/AutoGen.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:17:23.936Z",
+    "type": "auto",
+    "files": [
+      "/src/pages/AutoGen.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:16:26.289Z",
+    "type": "auto",
+    "files": [
+      "/src/pages/AutoGen.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T03:12:57.579Z",
+    "type": "auto",
+    "files": [
+      "/src/pages/AutoGen.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T02:52:26.145Z",
+    "type": "auto",
+    "files": [
+      "/src/pages/AutoGen.jsx"
+    ]
+  },
+  {
+    "timestamp": "2025-05-07T02:52:09.292Z",
+    "type": "auto",
+    "files": [
+      "src/pages/TesteJson.jsx"
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+[
+    {
+      "projectId": "abc123",
+      "projectName": "MeuPrimeiroProjeto",
+      "description": "Projeto gerado automaticamente usando o VUNOCODE Builder",
+      "status": "success",
+      "filesCreated": 12,
+      "duration": "4.2s",
+      "createdAt": "2025-05-05T10:20:00Z",
+      "log": [
+        "Iniciado às 10:20",
+        "Estrutura básica criada",
+        "Módulos adicionais gerados",
+        "Deploy finalizado"
+      ],
+      "downloadUrl": "/projetos/meuprojeto.zip",
+      "previewUrl": "/projetos/meuprojeto/preview",
+      "errors": [],
+      "warnings": ["Faltou autenticação em um módulo"],
+      "tags": ["React", "Fullstack", "API"]
+    }
+  ]
+  

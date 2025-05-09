@@ -1,0 +1,1 @@
+export default function CardVuno() { return <div className='border p-4 shadow rounded'>Este é um Card VUNO 🚀</div>; }

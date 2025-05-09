@@ -1,0 +1,1 @@
+export default function TesteB() { return <div>Componente TesteB ✅</div>; }

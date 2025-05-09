@@ -1,0 +1,19 @@
+{
+    "admin_title": "Painel Admin",
+    "execute_instructions": "Executar Instruções",
+    "copy_suggestion": "Copiar Sugestão",
+    "save_context": "Salvar Contexto Estratégico",
+    "logs_title": "Log da Execução",
+    "no_logs": "Nenhuma execução realizada ainda.",
+    "context_title": "Informações Estratégicas do Projeto",
+    "get_suggestion": "Obter Nova Sugestão IA",
+    "language": "Idioma",
+    "users": "Usuários",
+    "companies": "Empresas",
+    "plans": "Planos",
+    "home_editor": "Editor Home",
+    "admin_builder": "AdminBuilder (Core)",
+    "logs": "Logs & Auditoria",
+    "settings": "Configurações"
+  }
+  

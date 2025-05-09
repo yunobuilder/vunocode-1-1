@@ -1,0 +1,27 @@
+{
+    "projectName": "VUNOCode",
+    "author": "SeuNome",
+    "modules": [
+      {
+        "type": "page",
+        "name": "login",
+        "template": "defaultPage"
+      },
+      {
+        "type": "page",
+        "name": "register",
+        "template": "defaultPage"
+      },
+      {
+        "type": "component",
+        "name": "ProfileCard",
+        "template": "defaultComponent"
+      }
+    ],
+    "style": {
+      "primaryColor": "#6B46C1",
+      "secondaryColor": "#805AD5",
+      "font": "Inter, sans-serif"
+    }
+  }
+  

@@ -1,0 +1,19 @@
+{
+    "admin_title": "Admin Panel",
+    "execute_instructions": "Execute Instructions",
+    "copy_suggestion": "Copy Suggestion",
+    "save_context": "Save Strategic Context",
+    "logs_title": "Execution Log",
+    "no_logs": "No executions performed yet.",
+    "context_title": "Project Strategic Information",
+    "get_suggestion": "Get New AI Suggestion",
+    "language": "Language",
+    "users": "Users",
+    "companies": "Companies",
+    "plans": "Plans",
+    "home_editor": "Home Editor",
+    "admin_builder": "AdminBuilder (Core)",
+    "logs": "Logs & Audit",
+    "settings": "Settings"
+  }
+  
