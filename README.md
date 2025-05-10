@@ -1,3 +1,3 @@
 # VUNOCODE 2.0 Core
 
-Estrutura base inicial do projeto.
+Estrutura base inicial do projeto vunocode-1-1.
