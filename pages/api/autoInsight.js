@@ -1,5 +1,5 @@
 // pages/api/autoInsight.js
-import { analisarProjeto } from '../../src/ai/autoInsight'
+import { analisarProjeto } from '../../src/ia/autoInsight'  // sobe 2 pastas e desce em src/ia
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

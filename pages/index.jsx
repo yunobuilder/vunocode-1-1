@@ -1,10 +1,26 @@
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+// pages/index.jsx
+import { useEffect, useState } from 'react'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
+import { supabase } from '../lib/supabaseClient'
 
-export default function Index() {
+export default function Home() {
+  const [projetos, setProjetos] = useState([])
+
+  useEffect(() => {
+    ;(async () => {
+      const { data, error } = await supabase
+        .from('projetos')
+        .select('*')
+        .order('criado_em', { ascending: false })
+      if (!error) setProjetos(data)
+    })()
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
+
       <main className="flex-1">
 
         {/* HERO SECTION */}
@@ -33,30 +49,36 @@ export default function Index() {
 
         {/* BENEFÍCIOS */}
         <section className="py-16 px-4 max-w-6xl mx-auto grid gap-8 md:grid-cols-3 text-center">
-          <div className="bg-white p-6 rounded-lg shadow hover:scale-105 transition">
-            <div className="text-purple-700 text-4xl mb-4">⚡</div>
-            <h3 className="font-bold text-lg mb-2">Automação Instantânea</h3>
-            <p className="text-gray-600">
-              Crie estruturas completas e otimizadas em tempo recorde. Esqueça horas de setup manual.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow hover:scale-105 transition">
-            <div className="text-purple-700 text-4xl mb-4">🛠️</div>
-            <h3 className="font-bold text-lg mb-2">Fullstack Integrado</h3>
-            <p className="text-gray-600">
-              Frontend, backend e banco de dados gerados de forma inteligente e modularizada.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow hover:scale-105 transition">
-            <div className="text-purple-700 text-4xl mb-4">🔒</div>
-            <h3 className="font-bold text-lg mb-2">Segurança Avançada</h3>
-            <p className="text-gray-600">
-              Estrutura pronta com autenticação segura, proteção de rotas e logs automáticos.
-            </p>
-          </div>
+          {[
+            { icon: '⚡', title: 'Automação Instantânea', desc: 'Crie estruturas completas e otimizadas em tempo recorde. Esqueça horas de setup manual.' },
+            { icon: '🛠️', title: 'Fullstack Integrado', desc: 'Frontend, backend e banco de dados gerados de forma inteligente e modularizada.' },
+            { icon: '🔒', title: 'Segurança Avançada', desc: 'Estrutura pronta com autenticação segura, proteção de rotas e logs automáticos.' }
+          ].map((item) => (
+            <div key={item.title} className="bg-white p-6 rounded-lg shadow hover:scale-105 transition">
+              <div className="text-purple-700 text-4xl mb-4">{item.icon}</div>
+              <h3 className="font-bold text-lg mb-2">{item.title}</h3>
+              <p className="text-gray-600">{item.desc}</p>
+            </div>
+          ))}
         </section>
 
-        {/* DEMONSTRAÇÃO */}
+        {/* MEUS PROJETOS */}
+        <section className="py-16 px-4 max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4 text-purple-700">Meus Projetos</h2>
+          {projetos.length === 0 ? (
+            <p className="text-gray-600">Nenhum projeto encontrado.</p>
+          ) : (
+            <ul className="list-disc list-inside space-y-2">
+              {projetos.map(p => (
+                <li key={p.id} className="text-gray-800">
+                  {p.nome}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* DEMONSTRAÇÃO JSON */}
         <section className="py-16 bg-gray-100 px-4 text-center">
           <h2 className="text-3xl font-bold mb-4 text-purple-700">
             Veja Como é Fácil Criar com VUNOCode
@@ -89,29 +111,22 @@ export default function Index() {
             Empresas que Já Confiam 🚀
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="italic text-gray-600 mb-4">
-                “O VUNOCode acelerou nosso desenvolvimento em 80%. Nunca foi tão fácil criar projetos completos.”
-              </p>
-              <h4 className="font-bold text-purple-700">TechWave Solutions</h4>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="italic text-gray-600 mb-4">
-                “Simplesmente incrível. Do JSON ao deploy em minutos. Nossa equipe economizou semanas.”
-              </p>
-              <h4 className="font-bold text-purple-700">CodeMaster Inc.</h4>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="italic text-gray-600 mb-4">
-                “Funcionalidades avançadas e suporte impecável. VUNOCode é nossa ferramenta nº1.”
-              </p>
-              <h4 className="font-bold text-purple-700">NextGen Devs</h4>
-            </div>
+            {[
+              { quote: '“O VUNOCode acelerou nosso desenvolvimento em 80%. Nunca foi tão fácil criar projetos completos.”', author: 'TechWave Solutions' },
+              { quote: '“Simplesmente incrível. Do JSON ao deploy em minutos. Nossa equipe economizou semanas.”', author: 'CodeMaster Inc.' },
+              { quote: '“Funcionalidades avançadas e suporte impecável. VUNOCode é nossa ferramenta nº1.”', author: 'NextGen Devs' }
+            ].map((f, i) => (
+              <div key={i} className="bg-white p-6 rounded-lg shadow">
+                <p className="italic text-gray-600 mb-4">{f.quote}</p>
+                <h4 className="font-bold text-purple-700">{f.author}</h4>
+              </div>
+            ))}
           </div>
         </section>
 
       </main>
+
       <Footer />
     </div>
-  );
+  )
 }

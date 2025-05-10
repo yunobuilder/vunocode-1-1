@@ -1,27 +1,32 @@
-import fs from 'fs'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
-export default function handler(req, res) {
-  const baseDir = path.join(process.cwd(), 'projetos')
-  if (!fs.existsSync(baseDir)) return res.status(200).json([])
+export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', ['GET'])
+    return res.status(405).end(`Method ${req.method} Not Allowed`)
+  }
 
-  const projetos = fs.readdirSync(baseDir)
-    .filter(nome => {
-      const stat = fs.statSync(path.join(baseDir, nome))
-      return stat.isDirectory()
-    })
-    .map(nome => {
-      const projetoPath = path.join(baseDir, nome)
-      const uploads = path.join(projetoPath, 'uploads')
-      const arquivos = fs.existsSync(uploads) ? fs.readdirSync(uploads) : []
-      const stats = fs.statSync(projetoPath)
-
-      return {
-        nome: nome.toLowerCase(), // padroniza para minúsculas
-        dataCriacao: stats.birthtime.toLocaleString(),
-        arquivos
-      }
+  try {
+    const projetos = await prisma.projetos.findMany({
+      include: {
+        arquivos: true,
+        project_context: true
+      },
+      orderBy: { criado_em: 'desc' }
     })
 
-  res.status(200).json(projetos)
+    const formatado = projetos.map(p => ({
+      nome: p.nome,
+      dataCriacao: new Date(p.criado_em).toLocaleString('pt-BR'),
+      arquivos: p.arquivos.map(a => a.path),
+      estrategia: p.project_context[0]?.estrategia || '',
+      fases: p.project_context[0]?.fases || []
+    }))
+
+    res.status(200).json(formatado)
+  } catch (err) {
+    console.error('[api/projetos/list] erro:', err)
+    res.status(500).json({ error: 'Erro ao buscar projetos no banco de dados.' })
+  }
 }

@@ -1,24 +1,22 @@
-// KPITiles.jsx – Bloco de indicadores principais (Dashboard)
+// components/admin/KPITiles.jsx
+import React from 'react';
+
 export default function KPITiles({ stats }) {
-    return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded shadow text-center">
-          <p className="text-sm text-gray-500">Módulos Criados</p>
-          <p className="text-2xl font-bold text-purple-700">{stats.modules}</p>
+  const items = [
+    { label: 'Módulos', value: stats.modules },
+    { label: 'Execuções', value: stats.executions },
+    { label: 'Erros', value: stats.errors },
+    { label: 'Usuários', value: stats.users }
+  ];
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      {items.map(item => (
+        <div key={item.label} className="bg-white p-4 rounded shadow text-center">
+          <div className="text-xl font-semibold text-purple-700">{item.value}</div>
+          <div className="text-gray-600">{item.label}</div>
         </div>
-        <div className="bg-white p-4 rounded shadow text-center">
-          <p className="text-sm text-gray-500">Execuções</p>
-          <p className="text-2xl font-bold text-green-600">{stats.executions}</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow text-center">
-          <p className="text-sm text-gray-500">Erros</p>
-          <p className="text-2xl font-bold text-red-500">{stats.errors}</p>
-        </div>
-        <div className="bg-white p-4 rounded shadow text-center">
-          <p className="text-sm text-gray-500">Usuários Ativos</p>
-          <p className="text-2xl font-bold text-blue-500">{stats.users}</p>
-        </div>
-      </div>
-    );
-  }
-  
+      ))}
+    </div>
+  );
+}

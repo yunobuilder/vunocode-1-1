@@ -1,14 +1,40 @@
 import fs from 'fs'
 import path from 'path'
 
-export default function handler(req, res) {
-  const { nome } = req.query
-  const projeto = req.query.projeto
-  const caminho = path.join(process.cwd(), 'vunocode-projects', projeto, 'roadmaps', `roadmap_${nome}.json`)
+// Componente React que renderiza o roadmap
+export default function RoadmapPage({ roadmap }) {
+  return (
+    <div>
+      <h1>Roadmap: {roadmap.titulo || 'Sem título'}</h1>
+      <pre>{JSON.stringify(roadmap, null, 2)}</pre>
+    </div>
+  )
+}
 
-  if (!fs.existsSync(caminho)) return res.status(404).json({ erro: 'Trilha não encontrada' })
+// Executado *no servidor* a cada requisição
+export async function getServerSideProps({ query }) {
+  const { nome, projeto } = query
 
-  const conteudo = fs.readFileSync(caminho, 'utf-8')
-  const json = JSON.parse(conteudo)
-  res.status(200).json(json)
+  // Caminho até o JSON do roadmap
+  const filePath = path.join(
+    process.cwd(),
+    'vunocode-projects',
+    projeto,
+    'roadmaps',
+    `roadmap_${nome}.json`
+  )
+
+  // Se não existir, retorna 404
+  if (!fs.existsSync(filePath)) {
+    return { notFound: true }
+  }
+
+  // Lê e parseia o JSON
+  const raw = fs.readFileSync(filePath, 'utf8')
+  const roadmap = JSON.parse(raw)
+
+  // Passa como prop para o componente
+  return {
+    props: { roadmap },
+  }
 }

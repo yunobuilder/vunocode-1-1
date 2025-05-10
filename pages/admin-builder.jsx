@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import TopBar from '../components/admin/TopBar'
 import Sidebar from '../components/admin/Sidebar'
 import ExecutorControls from '../components/executor/ExecutorControls'
 import PreviewModal from '../components/executor/PreviewModal'
 import { languageToPath, languageToExt } from '../utils/languageMap'
-import Link from 'next/link'
 
 export default function AdminBuilder() {
+  // Estados
   const [jsonInput, setJsonInput] = useState('')
   const [mode, setMode] = useState('auto')
   const [language, setLanguage] = useState('auto')
@@ -16,90 +16,176 @@ export default function AdminBuilder() {
   const [history, setHistory] = useState([])
   const [trilhaAtual, setTrilhaAtual] = useState('')
   const [trilhasDisponiveis, setTrilhasDisponiveis] = useState([])
+  const [projetoSelecionado, setProjetoSelecionado] = useState('')
+  const [novoProjeto, setNovoProjeto] = useState('')
+  const [projetosDisponiveis, setProjetosDisponiveis] = useState([])
+  const [chatPrompt, setChatPrompt] = useState('')
+  const [chatResposta, setChatResposta] = useState('')
+  const [carregandoChat, setCarregandoChat] = useState(false)
+  const [loadingRun, setLoadingRun] = useState(false)
 
-  useEffect(() => {
-    fetchHistory()
-    fetchTrilhas()
+  // Fetch genérico
+  const fetchJSON = useCallback(async (url, options) => {
+    const res = await fetch(url, options)
+    const text = await res.text()
+    let json
+    try {
+      json = JSON.parse(text)
+    } catch {
+      throw new Error(`Erro ${res.status}: resposta não é JSON válido — ${text}`)
+    }
+    if (!res.ok) {
+      throw new Error(json.message || `Erro ${res.status}`)
+    }
+    return json
   }, [])
 
-  const fetchHistory = async () => {
-    const res = await fetch('/api/history')
-    setHistory(await res.json())
-  }
-
-  const fetchTrilhas = async () => {
+  // Funções de carregamento
+  const fetchHistory = useCallback(async () => {
     try {
-      const res = await fetch('/api/roadmaps/list')
-      const data = await res.json()
+      const data = await fetchJSON('/api/history')
+      setHistory(data)
+    } catch (err) {
+      console.error('[fetchHistory]', err)
+    }
+  }, [fetchJSON])
+
+  const fetchTrilhas = useCallback(async () => {
+    try {
+      const data = await fetchJSON('/api/roadmaps/list')
       setTrilhasDisponiveis(data)
-    } catch {
+    } catch (err) {
+      console.error('[fetchTrilhas]', err)
       setTrilhasDisponiveis([])
     }
-  }
+  }, [fetchJSON])
 
-  const handleRun = async () => {
-    setLog(prev => prev + '🧠 Validando instrução com IA...\n')
-
+  const fetchProjetos = useCallback(async () => {
     try {
-      const res = await fetch('/api/validateAndFix', {
+      // Atualizado para usar endpoint /api/projetos/list
+      const data = await fetchJSON('/api/projetos/list')
+      // Extrai apenas os nomes para o seletor
+      setProjetosDisponiveis(data.map(p => p.nome))
+    } catch (err) {
+      console.error('[fetchProjetos]', err)
+      setProjetosDisponiveis([])
+    }
+  }, [fetchJSON])
+
+  // Outras callbacks
+  const criarProjeto = useCallback(async () => {
+    if (!novoProjeto.trim()) return
+    try {
+      await fetchJSON('/api/projetos/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: novoProjeto.trim() })
+      })
+      setNovoProjeto('')
+      fetchProjetos()
+    } catch (err) {
+      console.error('[criarProjeto]', err)
+      setLog(prev => prev + `❌ Falha ao criar projeto: ${err.message}\n`)
+    }
+  }, [novoProjeto, fetchJSON, fetchProjetos])
+
+  const gerarComIA = useCallback(async () => {
+    if (!chatPrompt.trim()) return
+    setCarregandoChat(true)
+    try {
+      const data = await fetchJSON('/api/validate-and-fix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: chatPrompt })
+      })
+      setChatResposta(JSON.stringify(data.jsonCorrigido ?? data, null, 2))
+    } catch (err) {
+      console.error('[gerarComIA]', err)
+      setChatResposta(`⚠️ Erro: ${err.message}`)
+    } finally {
+      setCarregandoChat(false)
+    }
+  }, [chatPrompt, fetchJSON])
+
+  const handleRun = useCallback(async () => {
+    if (!jsonInput.trim()) {
+      setLog(prev => prev + '⚠️ Insira um JSON antes de executar.\n')
+      return
+    }
+    setLoadingRun(true)
+    setLog(prev => prev + '🧠 Validando instrução com IA...\n')
+    try {
+      const resultado = await fetchJSON('/api/validate-and-fix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ texto: jsonInput })
       })
-
-      const { jsonCorrigido } = await res.json()
-
+      const jsonCorrigido = resultado.jsonCorrigido ?? resultado
       if (!Array.isArray(jsonCorrigido.arquivos)) {
-        setLog(prev => prev + '❌ Formato inválido. Esperado: { arquivos: [ ... ] }\n')
+        setLog(prev => prev + '❌ JSON inválido: esperado { arquivos: [...] }\n')
         return
       }
-
       const mapped = jsonCorrigido.arquivos.map(f => {
         const basePath = languageToPath[language] ?? ''
         const ext = languageToExt[language] ?? ''
-        const path = f.path?.includes('/')
-          ? f.path
-          : `${basePath}${f.name || 'file'}${ext}`
-        return { path, content: f.content }
+        const filePath = f.path.includes('/') ? f.path : `${basePath}${f.path}${ext}`
+        return { path: filePath, content: f.content }
       })
-
       setPreviewFiles(mapped)
-      setLog(prev => prev + `✅ ${mapped.length} instrução(ões) pronta(s)\n`)
+      setLog(prev => prev + `✅ ${mapped.length} arquivo(s) pronto(s). Tempo: ${resultado.durationMs || '-'}ms\n`)
       setIsPreviewOpen(true)
     } catch (err) {
-      setLog(prev => prev + `❌ Erro: ${err.message}\n`)
+      console.error('[handleRun]', err)
+      setLog(prev => prev + `❌ Erro na validação: ${err.message}\n`)
+    } finally {
+      setLoadingRun(false)
     }
-  }
+  }, [jsonInput, language, fetchJSON])
 
-  const confirmExecute = async () => {
+  const confirmExecute = useCallback(async () => {
+    if (!projetoSelecionado) {
+      setLog(prev => prev + '⚠️ Nenhum projeto selecionado.\n')
+      return
+    }
     setIsPreviewOpen(false)
-    setLog(prev => prev + '🚀 Executando...\n')
+    setLog(prev => prev + `🚀 Executando no projeto "${projetoSelecionado}"...\n`)
     try {
       const res = await fetch('/api/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(previewFiles),
+        body: JSON.stringify(previewFiles)
       })
-      const { message } = await res.json()
-      setLog(prev => prev + `✅ ${message}\n`)
+      const text = await res.text()
+      const result = JSON.parse(text)
+      if (!res.ok) throw new Error(result.error || 'Erro na execução')
+      setLog(prev => prev + `✅ ${result.message ?? 'Execução concluída.'}\n`)
 
       const entry = {
         timestamp: new Date().toISOString(),
         type: mode,
         trilha: trilhaAtual,
-        files: previewFiles.map(f => f.path),
+        projeto: projetoSelecionado,
+        files: result.files ?? previewFiles.map(f => f.path)
       }
-      await fetch('/api/history', {
+      await fetchJSON('/api/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
+        body: JSON.stringify(entry)
       })
       setHistory(prev => [entry, ...prev])
       setJsonInput('')
-    } catch {
-      setLog(prev => prev + '❌ Falha na execução.\n')
+    } catch (err) {
+      console.error('[confirmExecute]', err)
+      setLog(prev => prev + `❌ Erro na execução: ${err.message}\n`)
     }
-  }
+  }, [projetoSelecionado, previewFiles, mode, trilhaAtual, fetchJSON])
+
+  // useEffect após todas as callbacks
+  useEffect(() => {
+    fetchHistory()
+    fetchTrilhas()
+    fetchProjetos()
+  }, [fetchHistory, fetchTrilhas, fetchProjetos])
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -107,119 +193,87 @@ export default function AdminBuilder() {
       <div className="flex-1 flex flex-col">
         <TopBar />
         <main className="flex-1 p-6 overflow-auto">
-          {/* Barra de progresso da trilha atual */}
-          {trilhaAtual && (
-            <div className="mb-4">
-              <label className="text-sm font-semibold text-gray-600">Progresso da Trilha:</label>
-              <div className="w-full bg-gray-200 rounded h-3 mt-1">
-                <div
-                  className="bg-purple-600 h-3 rounded"
-                  style={{ width: `${Math.min(100, Math.floor(Math.random() * 80 + 10))}%` }}
-                />
+          <h1 className="text-3xl font-bold text-purple-700 mb-6">
+            AdminBuilder – Núcleo Técnico 🚀
+          </h1>
+
+          <div className="flex gap-4 items-center mb-4">
+            <input
+              type="text"
+              placeholder="Nome do Projeto"
+              value={novoProjeto}
+              onChange={e => setNovoProjeto(e.target.value)}
+              className="border p-2 rounded text-sm"
+            />
+            <button
+              onClick={criarProjeto}
+              disabled={!novoProjeto.trim()}
+              className="bg-green-600 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+            >Salvar Projeto</button>
+            <select
+              value={projetoSelecionado}
+              onChange={e => setProjetoSelecionado(e.target.value)}
+              className="p-2 border rounded text-sm"
+            >
+              <option value="">Escolher Projeto</option>
+              {projetosDisponiveis.map((p, i) => (
+                <option key={i} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            {/* Geração com IA */}
+            <div className="bg-white p-4 rounded shadow">
+              <h2 className="font-semibold mb-2">🧠 Geração com IA</h2>
+              <textarea
+                value={chatPrompt}
+                onChange={e => setChatPrompt(e.target.value)}
+                className="w-full p-2 border rounded h-32 text-sm"
+                placeholder="Descreva o módulo ou código que deseja gerar"
+              />
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={gerarComIA}
+                  disabled={carregandoChat}
+                  className="bg-purple-600 text-white px-4 py-1 rounded disabled:opacity-50"
+                >{carregandoChat ? 'Gerando...' : 'Gerar JSON'}</button>
+                {chatResposta && (
+                  <button
+                    onClick={() => navigator.clipboard.writeText(chatResposta)}
+                    className="bg-gray-600 text-white px-4 py-1 rounded"
+                  >📋 Copiar</button>
+                )}
               </div>
-            </div>
-          )}
-
-          <div className="mb-6">
-  <h1 className="text-3xl font-bold text-purple-700">
-    AdminBuilder – Núcleo Técnico 🚀
-  </h1>
-</div>
-
-          <div className="bg-white p-4 rounded shadow mb-6 max-w-4xl">
-            <ExecutorControls
-              mode={mode}
-              onChangeMode={setMode}
-              onRun={handleRun}
-            />
-
-            <div className="mb-4 flex items-center gap-3">
-              <label className="font-semibold">Linguagem:</label>
-              <select
-                value={language}
-                onChange={e => setLanguage(e.target.value)}
-                className="p-2 border rounded text-sm"
-              >
-                <option value="auto">Auto Detectar</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="javascript">JavaScript</option>
-                <option value="react">React (JSX)</option>
-                <option value="python">Python</option>
-                <option value="php">PHP</option>
-                <option value="java">Java</option>
-                <option value="c">C</option>
-                <option value="cpp">C++</option>
-                <option value="go">Go</option>
-                <option value="rust">Rust</option>
-                <option value="docker">Dockerfile</option>
-                <option value="sql">SQL</option>
-                <option value="markdown">Markdown</option>
-              </select>
-
-              <label className="font-semibold ml-4">Trilha:</label>
-              <select
-                value={trilhaAtual}
-                onChange={e => setTrilhaAtual(e.target.value)}
-                className="p-2 border rounded text-sm"
-              >
-                <option value="">Nenhuma</option>
-                {trilhasDisponiveis.map((t, i) => (
-                  <option key={i} value={t.nome}>{t.nome}</option>
-                ))}
-              </select>
+              <pre className="mt-4 bg-gray-100 p-2 rounded text-xs whitespace-pre-wrap">
+                {chatResposta || (carregandoChat ? 'Gerando...' : '—')}
+              </pre>
             </div>
 
-            <textarea
-              value={jsonInput}
-              onChange={e => setJsonInput(e.target.value)}
-              placeholder="Cole aqui..."
-              className="w-full h-44 p-3 border rounded font-mono text-sm"
-            />
-          </div>
-
-          {isPreviewOpen && (
-            <PreviewModal
-              files={previewFiles}
-              onConfirm={confirmExecute}
-              onCancel={() => setIsPreviewOpen(false)}
-            />
-          )}
-
-          <div className="bg-white p-4 rounded shadow mb-6 max-w-4xl">
-            <h2 className="font-semibold mb-2">📜 Log de Execução</h2>
-            <pre className="h-64 overflow-auto bg-gray-50 p-2 rounded text-xs">
-              {log || '—'}
-            </pre>
-          </div>
-
-          <div className="bg-white p-4 rounded shadow max-w-4xl">
-            <h2 className="font-semibold mb-2">🗒 Histórico de Execuções</h2>
-            <div className="max-h-64 overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="border px-2 py-1">Data</th>
-                    <th className="border px-2 py-1">Tipo</th>
-                    <th className="border px-2 py-1">Trilha</th>
-                    <th className="border px-2 py-1">Arquivos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.slice(0, 10).map((h, i) => (
-                    <tr key={i}>
-                      <td className="border px-2 py-1">
-                        {new Date(h.timestamp).toLocaleString()}
-                      </td>
-                      <td className="border px-2 py-1">{h.type}</td>
-                      <td className="border px-2 py-1">{h.trilha || '—'}</td>
-                      <td className="border px-2 py-1">
-                        {h.files.join(', ')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Execução de JSON */}
+            <div className="bg-white p-4 rounded shadow">
+              <ExecutorControls
+                mode={mode}
+                onChangeMode={setMode}
+                onRun={handleRun}
+                disabled={loadingRun}
+              />
+              <textarea
+                value={jsonInput}
+                onChange={e => setJsonInput(e.target.value)}
+                className="w-full p-2 border rounded h-32 font-mono text-sm mt-2"
+                placeholder="Cole aqui um JSON de arquivos para executar"
+              />
+              {isPreviewOpen && (
+                <PreviewModal
+                  files={previewFiles}
+                  onConfirm={confirmExecute}
+                  onCancel={() => setIsPreviewOpen(false)}
+                />
+              )}
+              <pre className="mt-4 bg-gray-50 p-2 rounded text-xs max-h-48 overflow-auto whitespace-pre-wrap">
+                {log || '—'}
+              </pre>
             </div>
           </div>
         </main>
